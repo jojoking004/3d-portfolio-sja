@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syed Junaid Ahtisham - Frontend Developer & Creative Head</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        :root {
+            --text-color: #d0e1ff;
+            --highlight-color: #82aaff;
+            --bg-color: #02040a;
+            --sidebar-width: 80px;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Exo 2', sans-serif;
+            font-weight: 300;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            overflow-x: hidden;
+        }
+
+        #webgl-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            outline: none;
+            z-index: 1;
+        }
+
+        #loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease;
+            font-family: 'Exo 2', sans-serif;
+        }
+
+        #loader-text {
+            color: var(--highlight-color);
+            font-size: 1rem;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+
+        #progress-bar-container {
+            width: 200px;
+            height: 4px;
+            background: rgba(130, 170, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: var(--highlight-color);
+            transition: width 0.3s ease;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: rgba(10, 20, 45, 0.3);
+            border-right: 1px solid rgba(130, 170, 255, 0.2);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem 0;
+            box-sizing: border-box;
+        }
+
+        .sidebar-logo {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            color: #fff;
+            margin-bottom: 3rem;
+        }
+
+        .sidebar-links {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            margin-bottom: auto;
+        }
+
+        .sidebar-link, .social-link {
+            color: var(--text-color);
+            font-size: 1.2rem;
+            text-decoration: none;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .sidebar-link:hover, .social-link:hover {
+            color: var(--highlight-color);
+            transform: scale(1.1);
+        }
+
+        .sidebar-social {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        #content-container {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding: 0 5vw 0 calc(var(--sidebar-width) + 5vw);
+        }
+
+        .about-me-card {
+            max-width: 550px;
+            padding: 2rem;
+            background: rgba(10, 20, 45, 0.3);
+            border: 1px solid rgba(130, 170, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1.5s ease 1s, transform 1.5s ease 1s;
+        }
+        
+        /* MODIFIED: Added infinite animations to the card once it's visible */
+        .about-me-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            /* Assigning the animations */
+            animation: 
+                floatAnimation 6s ease-in-out infinite,
+                glowAnimation 4s ease-in-out infinite;
+        }
+
+        /* ADDED: Keyframes for the floating animation */
+        @keyframes floatAnimation {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        /* ADDED: Keyframes for the glowing border/shadow animation */
+        @keyframes glowAnimation {
+            0% {
+                box-shadow: 0 0 10px rgba(130, 170, 255, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 25px rgba(130, 170, 255, 0.6);
+            }
+            100% {
+                box-shadow: 0 0 10px rgba(130, 170, 255, 0.2);
+            }
+        }
+
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            margin: 0 0 0.5rem 0;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        .role-title {
+            font-family: 'Exo 2', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--highlight-color);
+            margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        .skills span {
+            display: inline-block;
+            background: rgba(130, 170, 255, 0.1);
+            border: 1px solid rgba(130, 170, 255, 0.2);
+            padding: 0.4rem 0.8rem;
+            border-radius: 5px;
+            margin: 0.2rem;
+            font-size: 0.9rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="loader-overlay">
+        <div id="loader-text">LOADING ASSETS 0%</div>
+        <div id="progress-bar-container">
+            <div id="progress-bar"></div>
+        </div>
+    </div>
+    <canvas id="webgl-canvas"></canvas>
+
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            SJA
+        </div>
+        <div class="sidebar-links">
+            <a href="index.html" class="sidebar-link" title="Home"><i class="fas fa-home"></i></a>
+            <a href="resume.html" class="sidebar-link" title="resume"><i class="fas fa-folder"></i></a>
+            <a href="contact.html" class="sidebar-link" title="Contact"><i class="fas fa-envelope"></i></a>
+             <a href="skills.html" class="sidebar-link" title="skills"><i class="fa-solid fa-code"></i></a>
+              <a href="about-us.html" class="sidebar-link" title="about"><i class="fa-solid fa-comment"></i></a>
+        </div>
+        <div class="sidebar-social">
+            <a href="#" class="social-link" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#" class="social-link" title="GitHub"><i class="fab fa-github"></i></a>
+        </div>
+    </div>
+    
+    <div id="content-container">
+        <div class="about-me-card" id="about-card">
+            <h1>Syed Junaid Ahtisham</h1>
+            <p class="role-title">Frontend Web Developer & Creative Head at Ficer Pakistan</p>
+            <p>
+                I specialize in architecting and building sophisticated user interfaces that merge cutting-edge technology with elegant, intuitive design. My passion lies in transforming complex challenges into seamless digital experiences.
+            </p>
+            <div class="skills">
+                <span>React</span>
+                <span>Three.js</span>
+                <span>JavaScript</span>
+                <span>WebGL</span>
+                <span>UI/UX Design</span>
+                <span>Creative Direction</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Libraries -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.142.0/build/three.module.js",
+                "gltf-loader": "https://cdn.jsdelivr.net/npm/three@0.142.0/examples/jsm/loaders/GLTFLoader.js",
+                "draco-loader": "https://cdn.jsdelivr.net/npm/three@0.142.0/examples/jsm/loaders/DRACOLoader.js",
+                "rgbe-loader": "https://cdn.jsdelivr.net/npm/three@0.142.0/examples/jsm/loaders/RGBELoader.js",
+                "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.11.0/index.js"
+            }
+        }
+    </script>
+
+    <!-- Main 3D Script -->
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'gltf-loader';
+        import { DRACOLoader } from 'draco-loader';
+        import { RGBELoader } from 'rgbe-loader';
+        import { gsap } from 'gsap';
+
+        let scene, camera, renderer, spaceship, cardLight;
+        const clock = new THREE.Clock();
+        const mouse = new THREE.Vector2();
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 0, 15);
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl-canvas'), antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.outputEncoding = THREE.sRGBEncoding;
+
+            const loadingManager = new THREE.LoadingManager();
+            const loaderOverlay = document.getElementById('loader-overlay');
+            const loaderText = document.getElementById('loader-text');
+            const progressBar = document.getElementById('progress-bar');
+
+            loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
+                const progress = Math.round((itemsLoaded / itemsTotal) * 100);
+                loaderText.textContent = `LOADING ASSETS ${progress}%`;
+                progressBar.style.width = `${progress}%`;
+            };
+
+            loadingManager.onLoad = () => {
+                loaderOverlay.style.opacity = '0';
+                setTimeout(() => loaderOverlay.style.display = 'none', 1000);
+                startIntroAnimation();
+            };
+
+            const rgbeLoader = new RGBELoader(loadingManager);
+            rgbeLoader.load('https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_03_1k.hdr', (texture) => {
+                texture.mapping = THREE.EquirectangularReflectionMapping;
+                scene.environment = texture;
+            });
+            const keyLight = new THREE.SpotLight(0x82aaff, 50, 40, Math.PI / 4, 1);
+            keyLight.position.set(-10, 10, 10);
+            const rimLight = new THREE.SpotLight(0xffb86c, 30, 40, Math.PI / 4, 1);
+            rimLight.position.set(10, 5, -10);
+            scene.add(keyLight, rimLight);
+
+            cardLight = new THREE.SpotLight(0x82aaff, 0, 25, Math.PI / 5, 0.5, 2);
+            cardLight.position.set(6, 2, -5);
+            const cardPosition = new THREE.Vector3(-4, 0, 0); 
+            cardLight.target.position.copy(cardPosition);
+            scene.add(cardLight);
+            scene.add(cardLight.target);
+
+            const dracoLoader = new DRACOLoader(loadingManager);
+            dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.142.0/examples/jsm/libs/draco/');
+            
+            const gltfLoader = new GLTFLoader(loadingManager);
+            gltfLoader.setDRACOLoader(dracoLoader);
+
+            gltfLoader.load('https://threejs.org/examples/models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf', (gltf) => {
+                spaceship = gltf.scene;
+                spaceship.scale.setScalar(3.5);
+                spaceship.rotation.set(0.5, -0.5, 0);
+                scene.add(spaceship);
+            });
+
+            window.addEventListener('resize', onWindowResize);
+            window.addEventListener('mousemove', onMouseMove);
+            
+            animate();
+        }
+
+        function startIntroAnimation() {
+            const aboutCard = document.getElementById('about-card');
+            
+            gsap.to(spaceship.rotation, {
+                y: spaceship.rotation.y + Math.PI * 2,
+                duration: 4,
+                ease: "power1.inOut"
+            });
+            
+            gsap.to(spaceship.position, {
+                x: window.innerWidth > 768 ? 6 : 0,
+                y: window.innerWidth > 768 ? 2 : 5,
+                z: -5,
+                duration: 2,
+                delay: 3,
+                ease: "power2.inOut"
+            });
+            gsap.to(spaceship.rotation, {
+                x: 0.2, y: -1.2, z: 0.1,
+                duration: 2,
+                delay: 3,
+                ease: "power2.inOut",
+                onComplete: () => {
+                   aboutCard.classList.add('visible');
+                   gsap.to(cardLight, { intensity: 30, duration: 1.5, ease: "power1.in" });
+                }
+            });
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (spaceship && document.getElementById('about-card').classList.contains('visible')) {
+                spaceship.rotation.y += ((-1.2 + mouse.x * 0.1) - spaceship.rotation.y) * 0.05;
+                spaceship.rotation.x += ((0.2 - mouse.y * 0.1) - spaceship.rotation.x) * 0.05;
+                cardLight.position.copy(spaceship.position);
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        init();
+    </script>
+
+</body>
+</html>
